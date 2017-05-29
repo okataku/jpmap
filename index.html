@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>jpmap</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+</head>
+<body>
+  <h1>jpmap</h1>
+  <svg id="map"></svg>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.8.0/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.0/topojson.min.js"></script>
+  <script>
+  $(function() {
+    var width = 500,
+        height = 500;
+
+    var svg = d3.select("#map")
+        .attr("width", width)
+        .attr("height", height);
+
+    var mercator = d3.geoMercator()
+        .center([136, 35.5])
+        .scale(1000)
+        .translate([width / 2, height / 2]);
+
+    var path = d3.geoPath()
+        .projection(mercator);
+
+    d3.json("/json/topo.json", function(error, topo) {
+      var topo = topojson.feature(topo, topo.objects.geo).features;
+      svg.selectAll(".pref")
+          .data(topo)
+          .enter()
+          .append("path")
+          .attr("id", function(d) { return `pref-${d.properties.name}`; })
+          .attr("class", function(d) { return `pref pref-${d.properties.name}`; })
+          .attr("d", path);
+    });
+  });
+  </script>
+</body>
+</html>
